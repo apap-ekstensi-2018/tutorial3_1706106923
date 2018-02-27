@@ -8,6 +8,7 @@ import com.example.tutorial3.service.InMemoryStudentService;
 import com.example.tutorial3.service.StudentService;
 import com.example.tutorial3.model.StudentModel;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class StudentController {
@@ -27,7 +28,7 @@ public class StudentController {
 	}
 	
 	@RequestMapping("/student/view")
-	public String view(Model model, @RequestParam(value = "npm", required = true) String npm) {
+	public String view(Model model, @RequestParam(value = "npm", required = true) Optional<String> npm) {
 		StudentModel student = studentService.selectStudent(npm);
 		model.addAttribute("student", student);
 		return "view";
