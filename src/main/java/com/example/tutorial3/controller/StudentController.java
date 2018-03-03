@@ -2,6 +2,7 @@ package com.example.tutorial3.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.example.tutorial3.service.InMemoryStudentService;
@@ -27,12 +28,12 @@ public class StudentController {
 		return "add";
 	}
 	
-	@RequestMapping("/student/view")
-	public String view(Model model, @RequestParam(value = "npm", required = true) Optional<String> npm) {
-		StudentModel student = studentService.selectStudent(npm);
-		model.addAttribute("student", student);
-		return "view";
-	}
+//	@RequestMapping("/student/view")
+//	public String view(Model model, @RequestParam(value = "npm", required = true) String npm) {
+//		StudentModel student = studentService.selectStudent(npm);
+//		model.addAttribute("student", student);
+//		return "view";
+//	}
 	
 	@RequestMapping("/student/viewall")
 	public String viewAll(Model model) {
@@ -40,6 +41,46 @@ public class StudentController {
 		model.addAttribute("students", students);
 		return "viewall";
 	}
-
+	
+	@RequestMapping(value= {"/student/view","/student/view/{npm}"})
+	public String studentViewPath(@PathVariable Optional<String> npm, Model model)
+	{
+		String view="";
+			if(npm.isPresent()) {
+				String Npm = npm.toString().substring(9, npm.toString().length()-1);
+				
+				StudentModel student = studentService.selectStudent(Npm);
+				if(student == null) {
+					model.addAttribute("errorMessage","NPM tidak ditemukan");
+					view = "viewError";
+				}else {
+					model.addAttribute("student",student);
+					view = "view";
+				}
+			}else {
+				model.addAttribute("errorMessage","NPM tidak diberikan");
+				view = "viewError";
+			}
+		return view;
+	}
+	
+	@RequestMapping(value= {"/student/delete","/student/delete/{npm}"})
+	public String studentDeletePath(@PathVariable Optional<String> npm, Model model)
+	{
+			if(npm.isPresent()) {
+				String Npm = npm.toString().substring(9, npm.toString().length()-1);
+				
+				StudentModel student = studentService.selectStudent(Npm);
+				if(student == null) {
+					model.addAttribute("errorMessage","NPM tidak ditemukan");
+				}else {
+					studentService.deleteStudent(student);
+					model.addAttribute("errorMessage","NPM berhasil dihapus");
+				}
+			}else {
+				model.addAttribute("errorMessage","NPM tidak diberikan");
+			}
+		return "viewError";
+	}
 
 }
